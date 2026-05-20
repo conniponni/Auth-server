@@ -3,12 +3,16 @@ package iths.se.connie.authserver.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
+@NoArgsConstructor
+@ToString(exclude = "password")
 public class User {
 
     @Id
