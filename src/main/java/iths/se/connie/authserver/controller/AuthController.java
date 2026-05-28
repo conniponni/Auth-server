@@ -8,6 +8,7 @@ import iths.se.connie.authserver.dto.UserResponseDTO;
 import iths.se.connie.authserver.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -37,4 +38,8 @@ public class AuthController {
         return ResponseEntity.ok(authService.publicJwkSet());
     }
 
+    @GetMapping("/me")
+    public Authentication me(Authentication authentication) {
+        return authentication;
+    }
 }

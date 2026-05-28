@@ -100,10 +100,15 @@ public class AuthService {
 
     public TokenResponseDTO login(LoginRequestDTO request) {
 
+        String normalizedUsername =
+                request.username()
+                        .trim()
+                        .toLowerCase(Locale.ROOT);
+
         Authentication authentication =
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
-                                request.username(),
+                                normalizedUsername,
                                 request.password()
                         )
                 );
@@ -116,7 +121,14 @@ public class AuthService {
 
                         .map(grantedAuthority ->
                                 grantedAuthority.getAuthority()
-                                        .replace("ROLE_", "")
+                        )
+
+                        .filter(authority ->
+                                authority.startsWith("ROLE_")
+                        )
+
+                        .map(authority ->
+                                authority.replace("ROLE_", "")
                         )
 
                         .toList();
