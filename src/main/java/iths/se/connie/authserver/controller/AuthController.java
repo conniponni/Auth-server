@@ -7,6 +7,7 @@ import iths.se.connie.authserver.dto.UserRegisterRequestDTO;
 import iths.se.connie.authserver.dto.UserResponseDTO;
 import iths.se.connie.authserver.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +25,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register (@Valid @RequestBody UserRegisterRequestDTO request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<UserResponseDTO> register(
+            @Valid @RequestBody UserRegisterRequestDTO request) {
+
+        UserResponseDTO user = authService.register(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(user);
     }
 
     @PostMapping("/login")

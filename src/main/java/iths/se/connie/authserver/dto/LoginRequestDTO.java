@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 public record LoginRequestDTO(
 
         @Email(message = "Email must be valid")
-        @NotBlank(message = "Username is required")
+        @NotBlank(message = "Email is required for login")
         String username,
 
         @NotBlank(message = "Password is required")
