@@ -1,17 +1,17 @@
 package iths.se.connie.authserver.controller;
 
 
-import iths.se.connie.authserver.dto.LoginRequestDTO;
-import iths.se.connie.authserver.dto.TokenResponseDTO;
-import iths.se.connie.authserver.dto.UserRegisterRequestDTO;
-import iths.se.connie.authserver.dto.UserResponseDTO;
+import iths.se.connie.authserver.dto.*;
 import iths.se.connie.authserver.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 @RestController
@@ -40,13 +40,27 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @GetMapping ("/jwks")
+    @GetMapping("/jwks")
     public ResponseEntity<Map<String, Object>> jwks() {
         return ResponseEntity.ok(authService.publicJwkSet());
     }
 
+
     @GetMapping("/me")
-    public Authentication me(Authentication authentication) {
-        return authentication;
+    public ResponseEntity<SessionResponseDTO> me(
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Instant expiresAt = jwt.getExpiresAt();
+
+        long remainingSeconds = expiresAt != null
+                ? Math.max(0, Duration.between(Instant.now(), expiresAt).getSeconds())
+                : 0;
+
+        return ResponseEntity.ok(new SessionResponseDTO(
+                remainingSeconds,
+                jwt.getSubject(),
+                jwt.getClaimAsStringList("roles")
+        ));
     }
+
 }
