@@ -38,13 +38,14 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+// security config för att hantera jwt token och cors
 public class SecurityConfig {
 
     private final String jwtIssuer;
     private final String jwtPublicKey;
     private final String jwtPrivateKey;
     private final String jwtKeyId;
-
+    // Konstruktor för SecurityConfig som tar emot värden från application.properties
     public SecurityConfig(
             @Value("${app.jwt.issuer}") String jwtIssuer,
             @Value("${app.jwt.public-key:}") String jwtPublicKey,
@@ -56,13 +57,13 @@ public class SecurityConfig {
         this.jwtPrivateKey = jwtPrivateKey;
         this.jwtKeyId = jwtKeyId;
     }
-
+    // Bean för att skapa en PasswordEncoder
     @Bean
     public PasswordEncoder passwordEncoder() {
 
         return new BCryptPasswordEncoder();
     }
-
+    // Bean för att skapa en JwtAuthenticationConverter som konverterar JWT till Spring Securitys Authentication
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
@@ -97,7 +98,7 @@ public class SecurityConfig {
 
         return http.build();
     }
-
+    // Bean för att skapa en JwtDecoder som dekrypterar och validerar JWT
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
@@ -129,7 +130,7 @@ public class SecurityConfig {
 
         return source;
     }
-
+    // Bean för att skapa en AuthenticationManager som hanterar autentisering
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration)
@@ -137,14 +138,14 @@ public class SecurityConfig {
 
         return configuration.getAuthenticationManager();
     }
-
+    // Bean för att skapa en JwtEncoder som kodar JWT
     @Bean
     public JwtEncoder jwtEncoder(
             JWKSource<SecurityContext> jwkSource) {
 
         return new NimbusJwtEncoder(jwkSource);
     }
-
+    // Bean för att skapa en JwtDecoder som dekrypterar och validerar JWT
     @Bean
     public JWKSource<SecurityContext> jwkSource(
             KeyPair keyPair) {
@@ -163,7 +164,7 @@ public class SecurityConfig {
                 new JWKSet(rsaKey)
         );
     }
-
+    // Bean för att skapa en JwtDecoder som dekrypterar och validerar JWT
     @Bean
     public JwtDecoder jwtDecoder(KeyPair keyPair) {
 
@@ -181,7 +182,7 @@ public class SecurityConfig {
 
         return jwtDecoder;
     }
-
+    // Bean för att skapa en KeyPair som innehåller en publik och privat nyckel för JWT
     @Bean
     public KeyPair keyPair() throws Exception {
 
