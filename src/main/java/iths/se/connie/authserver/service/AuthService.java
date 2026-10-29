@@ -29,7 +29,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
+// Service class för autentisering och hantering av användare
 @Service
 public class AuthService {
 
@@ -39,10 +39,11 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // JWT configuration properties
     private final String jwtIssuer;
     private final String jwtKeyId;
     private final long jwtExpirationMinutes;
-
+    // Konstruktor för AuthService som tar emot beroenden och konfigurationsvärden
     public AuthService(
             AuthenticationManager authenticationManager,
             JwtEncoder jwtEncoder,
@@ -50,10 +51,12 @@ public class AuthService {
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
 
+            // JWT configuration properties
             @Value("${app.jwt.issuer}") String jwtIssuer,
             @Value("${app.jwt.key-id}") String jwtKeyId,
             @Value("${app.jwt.expiration-minutes}") long jwtExpirationMinutes
     ) {
+        // Beroenden och konfigurationsvärden tilldelas till fält
         this.authenticationManager = authenticationManager;
         this.jwtEncoder = jwtEncoder;
         this.keyPair = keyPair;
@@ -65,19 +68,20 @@ public class AuthService {
         this.jwtExpirationMinutes = jwtExpirationMinutes;
     }
 
+    // Metod för att registrera en ny användare
     public UserResponseDTO register(UserRegisterRequestDTO request) {
 
         String normalizedUsername =
                 request.username()
                         .trim()
                         .toLowerCase(Locale.ROOT);
-
+        // Kontrollera om användarnamnet redan finns i databasen
         if (userRepository.findByUsername(normalizedUsername).isPresent()) {
             throw new IllegalArgumentException(
                     "Username already exists"
             );
         }
-
+        // Skapa en ny användare och sätt dess egenskaper
         User user = new User();
 
         user.setUsername(normalizedUsername);
@@ -101,14 +105,14 @@ public class AuthService {
                 savedUser.getUsername()
         );
     }
-
+    // Metod för att logga in en användare och generera en JWT-token
     public TokenResponseDTO login(LoginRequestDTO request) {
 
+        // Normalisera användarnamnet genom att ta bort mellanslag och göra stora bokstäver till små
         String normalizedUsername =
                 request.username()
                         .trim()
                         .toLowerCase(Locale.ROOT);
-
         Authentication authentication =
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
@@ -116,7 +120,7 @@ public class AuthService {
                                 request.password()
                         )
                 );
-
+        // Hämta användarens detaljer och roller från autentiseringsobjektet
         UserDetails principal =
                 (UserDetails) authentication.getPrincipal();
 
@@ -136,12 +140,11 @@ public class AuthService {
                         )
 
                         .toList();
-
         Instant now = Instant.now();
-
+        // Beräkna när token ska gå ut baserat på nuvarande tid och konfigurerad expiration tid
         Instant expiresAt =
                 now.plus(jwtExpirationMinutes, ChronoUnit.MINUTES);
-
+        // Skapa JWT claims med information om issuer, issuedAt, expiresAt, subject och roller
         JwtClaimsSet claims =
                 JwtClaimsSet.builder()
 
@@ -156,14 +159,14 @@ public class AuthService {
                         .claim("roles", roles)
 
                         .build();
-
+        //
         JwsHeader jwsHeader =
                 JwsHeader.with(SignatureAlgorithm.RS256)
 
                         .keyId(jwtKeyId)
 
                         .build();
-
+        //Kryptera jwt med hjälp av jwtEncoder
         String accessToken =
                 jwtEncoder.encode(
                         JwtEncoderParameters.from(
@@ -171,7 +174,7 @@ public class AuthService {
                                 claims
                         )
                 ).getTokenValue();
-
+        //
         return new TokenResponseDTO(
                 accessToken,
 
@@ -182,7 +185,7 @@ public class AuthService {
                 roles
         );
     }
-
+    // Metod för att hämta den publika JWK-setet som används för att verifiera JWT-signaturen
     public Map<String, Object> publicJwkSet() {
 
         RSAKey rsaKey =

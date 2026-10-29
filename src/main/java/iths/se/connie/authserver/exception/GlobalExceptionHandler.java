@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+    // Exception handler för validation exceptions
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationException(
             MethodArgumentNotValidException ex) {
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
                         .stream()
                         .findFirst()
                         .orElse(null);
-
+        // Om det finns ett valideringsfel, hämta dess meddelande, annars använd ett standardmeddelande
         String message = firstError != null
                 ? firstError.getDefaultMessage()
                 : "Validation failed";
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(message);
     }
-
+    // Exception handler för NoSuchElementException
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> handleNoSuchElementException(
             NoSuchElementException ex) {
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ex.getMessage());
     }
-
+    // Exception handler för IllegalArgumentException
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(
             IllegalArgumentException ex) {

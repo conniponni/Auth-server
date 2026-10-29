@@ -18,6 +18,7 @@ public class AuthUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    // Metod för att ladda användardetaljer baserat på användarnamn
     @Override
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
