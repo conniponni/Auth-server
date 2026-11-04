@@ -90,11 +90,7 @@ public class AuthService {
                 passwordEncoder.encode(request.password())
         );
 
-        user.setRole(
-                request.role() == null || request.role().isBlank()
-                        ? Role.USER
-                        : Role.valueOf(request.role().trim().toUpperCase(Locale.ROOT))
-        );
+        user.setRole(Role.USER);
 
         user.setEnabled(true);
 
